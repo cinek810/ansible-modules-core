@@ -87,7 +87,7 @@ options:
     version_added: "1.9"
   identifier:
     description:
-      - Weighted and latency-based resource record sets only. An identifier
+      - Have to be specified for Weighted, latency-based and failover resource record sets only. An identifier
         that differentiates among multiple resource record sets that have the
         same combination of DNS name and type.
     required: false
@@ -350,6 +350,8 @@ def main():
               module.fail_json(msg = "parameter 'value' must contain a single dns name for alias create/delete")
           elif not alias_hosted_zone_id_in:
               module.fail_json(msg = "parameter 'alias_hosted_zone_id' required for alias create/delete")
+	elif ( weight_in!=None or region_in!=None or failover_in!=None ) and identifier_in==None:
+	      module.fail_json(msg= "If you specify failover, region or weight routing policy you must also specify identifier")
 
     if vpc_id_in and not private_zone_in:
         module.fail_json(msg="parameter 'private_zone' must be true when specifying parameter"
