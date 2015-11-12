@@ -87,9 +87,9 @@ options:
     version_added: "1.9"
   identifier:
     description:
-      - Weighted and latency-based resource record sets only. An identifier
+      - Have to be specified for Weighted, latency-based and failover resource record sets only. An identifier
         that differentiates among multiple resource record sets that have the
-        same combination of DNS name and type.
+        same combination of DNS name and type. 
     required: false
     default: null
     version_added: "2.0"
@@ -234,14 +234,14 @@ EXAMPLES = '''
 import time
 
 try:
-    import boto
-    import boto.ec2
-    from boto import route53
-    from boto.route53 import Route53Connection
-    from boto.route53.record import Record, ResourceRecordSets
-    HAS_BOTO = True
+	import boto
+	import boto.ec2
+	from boto import route53
+	from boto.route53 import Route53Connection
+	from boto.route53.record import Record, ResourceRecordSets
+	HAS_BOTO = True
 except ImportError:
-    HAS_BOTO = False
+	HAS_BOTO = False
 
 def get_zone_by_name(conn, module, zone_name, want_private, zone_id, want_vpc_id):
     """Finds a zone by name or zone_id"""
@@ -350,6 +350,8 @@ def main():
               module.fail_json(msg = "parameter 'value' must contain a single dns name for alias create/delete")
           elif not alias_hosted_zone_id_in:
               module.fail_json(msg = "parameter 'alias_hosted_zone_id' required for alias create/delete")
+	elif ( weight_in!=None or region_in!=None or failover_in!=None ) and identifier_in==None:
+	  module.fail_json(msg= "If you specify failover, region or weight you must also specify identifier")
 
     if vpc_id_in and not private_zone_in:
         module.fail_json(msg="parameter 'private_zone' must be true when specifying parameter"
@@ -383,6 +385,7 @@ def main():
             wanted_rset.add_value(v)
 
     sets = conn.get_all_rrsets(zone.id, name=record_in, type=type_in, identifier=identifier_in)
+
     for rset in sets:
         # Due to a bug in either AWS or Boto, "special" characters are returned as octals, preventing round
         # tripping of things like * and @.
