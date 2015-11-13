@@ -450,7 +450,10 @@ def main():
     except boto.route53.exception.DNSServerError, e:
         txt = e.body.split("<Message>")[1]
         txt = txt.split("</Message>")[0]
-        module.fail_json(msg = txt)
+        if "but it already exists" in txt:
+                module.exit_json(changed=False)
+        else:   
+                module.fail_json(msg = txt)
 
     module.exit_json(changed=True)
 
