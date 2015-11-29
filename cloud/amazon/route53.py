@@ -393,7 +393,10 @@ def main():
         decoded_name = decoded_name.replace(r'\100', '@')
         #Need to save this changes in rset, because of comparing rset.to_xml() == wanted_rset.to_xml() in next block
 	rset.name = decoded_name
-
+	
+        if identifier_in is not None:
+            identifier_in = str(identifier_in)
+	
         if rset.type == type_in and decoded_name.lower() == record_in.lower() and str(rset.identifier) == str(identifier_in):
             found_record = True
             record['zone'] = zone_in
